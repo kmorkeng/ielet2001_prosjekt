@@ -1,11 +1,3 @@
-'''
-This Example sends harcoded data to Ubidots using the Paho MQTT
-library.
-
-Please install the library using pip install paho-mqtt
-
-Made by Jose García @https://github.com/jotathebest/
-'''
 
 import paho.mqtt.client as mqttClient
 import paho.mqtt.subscribe as subscribe
@@ -13,9 +5,6 @@ import time
 import json
 import random
 
-'''
-global variables
-'''
 
 connected = False  # Stores the connection status
 BROKER_ENDPOINT = "industrial.api.ubidots.com"
@@ -33,11 +22,7 @@ SUBSCIBE_VARIABLE_LABEL = "getcoordinates"
 upload = False
 
 
-
-'''
-Functions to process incoming and outgoing streaming
-'''
-
+#Funksjoner
 
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
@@ -104,7 +89,7 @@ def main(mqtt_client,lat,lng):
     #lat = 6.101;
     #lng= -71.293;
 
-    # Builds Payload and topíc
+    # Setter opp payload og legger koordinatene som context til en variabel
     payload = {VARIABLE_LABEL: {"value": sensor_value,
                                 "context": {"lat": lat, "lng": lng}}
                                 }
@@ -122,7 +107,7 @@ def main(mqtt_client,lat,lng):
         connect(mqtt_client, MQTT_USERNAME, MQTT_PASSWORD,
                 BROKER_ENDPOINT, PORT)
 
-    # Publishes values
+    # Sender verdier
     print("[INFO] Attempting to publish payload:")
     print(payload)
     for x in range(6):
@@ -157,7 +142,7 @@ print(latitudes,longitudes)
 mqtt_client = mqttClient.Client()
 mqtt_client.on_message=on_message
 i = 0
-if(upload == False):
+if(upload == False): #Subscriber til verdi som ESP32 endrer til 1 når den vil at pythonskript skal sende
     #mqtt_client.subscribe("/v1.6/devices/test/getcoordinates")
     time.sleep(0.1)
     subscribe.callback(print_msg, "/v1.6/devices/test/getcoordinates", hostname="industrial.api.ubidots.com",auth = {'username':"BBFF-nKvPfwxPTDAW1eoBkh6Nxpi4hQbaed"})
