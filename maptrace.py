@@ -1,11 +1,3 @@
-'''
-This Example sends harcoded data to Ubidots using the Paho MQTT
-library.
-
-Please install the library using pip install paho-mqtt
-
-Made by Jose García @https://github.com/jotathebest/
-'''
 
 import paho.mqtt.client as mqttClient
 import paho.mqtt.subscribe as subscribe
@@ -28,10 +20,12 @@ VARIABLE_LABEL = "pos"
 VARIABLE_LABEL_LAT = "latitudes"
 VARIABLE_LABEL_LONG = "longitudes"
 SUBSCRIBE_DEVICE_LABEL = "test"
-SUBSCIBE_VARIABLE_LABEL = "getcoordinates"
+SUBSCRIBE_VARIABLE_LABEL = "getcoordinates"
 
 upload = False
 
+latitudes = []
+longitudes = []
 
 
 '''
@@ -98,15 +92,12 @@ def publish(mqtt_client, topic, payload):
 
 def main(mqtt_client,lat,lng):
 
-    # Simulates sensor values
-    #sensor_value = random.random() * 100
     sensor_value = 1
-    #lat = 6.101;
-    #lng= -71.293;
+
 
     # Builds Payload and topíc
     payload = {VARIABLE_LABEL: {"value": sensor_value,
-                                "context": {"lat": lat, "lng": lng}}
+                                "context": {"lat": lat, "lng": lng}} #legger koordinatene i kontekst
                                 }
     payloadLat = {VARIABLE_LABEL_LAT: {"value": lat,"context": {"lat": lat, "lng": lng}}}
     payloadLong = {VARIABLE_LABEL_LONG: {"value": lng,"context": {"lat": lat, "lng": lng}}}
@@ -136,8 +127,6 @@ def main(mqtt_client,lat,lng):
     
     
 
-latitudes = []
-longitudes = []
 
 with open('maptrace.txt') as f:
     lines = f.readlines()
@@ -158,11 +147,9 @@ mqtt_client = mqttClient.Client()
 mqtt_client.on_message=on_message
 i = 0
 if(upload == False):
-    #mqtt_client.subscribe("/v1.6/devices/test/getcoordinates")
     time.sleep(0.1)
     subscribe.callback(print_msg, "/v1.6/devices/test/getcoordinates", hostname=BROKER_ENDPOINT,auth = {'username':MQTT_USERNAME})
     
-    print("123")
 
 upload = True
 
@@ -170,4 +157,9 @@ while (i < len(latitudes)):
     main(mqtt_client,latitudes[i],longitudes[i])
     time.sleep(5)
     i+=1
+
+payloadCord = {SUBSCRIBE_VARIABLE_LABEL: {"value": 0,}} # setter getCoordinates til 0 igjen
+payloadCord = json.dumps(payloadCord)
+topic = "{}{}".format(TOPIC, SUBSCRIBE_DEVICE_LABEL)
+publish(mqtt_client, topic)
 upload = False
